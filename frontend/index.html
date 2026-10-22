@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Internship Tracker</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+</head>
+<body>
+<main class="page">
+    <header class="hero">
+        <p class="eyebrow">Fresh opportunities</p>
+        <h1>Internship Tracker</h1>
+        <p>Find recently posted internships from multiple job sources.</p>
+    </header>
+    <form id="search-form" class="search-panel">
+        <label for="keywords">Keywords</label>
+        <input id="keywords" name="keywords" type="search" placeholder="java, spring, design" autocomplete="off">
+        <label for="hours">Posted within</label>
+        <select id="hours" name="hours">
+            <option value="24">Last 24 hours</option>
+            <option value="72">Last 3 days</option>
+            <option value="168">Last 7 days</option>
+        </select>
+        <button type="submit">Search internships</button>
+    </form>
+    <section class="results" aria-live="polite">
+        <div class="results-heading">
+            <h2>Results</h2>
+            <p id="result-count"></p>
+        </div>
+        <p id="status" class="status">Loading internships…</p>
+        <div id="job-list" class="job-list"></div>
+    </section>
+</main>
+</body>
+</html>
