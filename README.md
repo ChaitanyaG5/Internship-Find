@@ -10,6 +10,7 @@ internship-tracker/
 ```
 
 Maven copies the frontend files into the backend's static resources when building, so the backend serves the website and API from the same origin. The frontend source remains independent in `frontend/`.
+The page includes a moonlit falling `dog.png` background animation and a persistent dark/light theme toggle; the animation is decorative, does not intercept input, and is disabled for users who prefer reduced motion.
 
 ## Requirements
 

@@ -4,11 +4,32 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Internship Tracker</title>
+    <script>
+        const savedTheme = localStorage.getItem("internship-tracker-theme");
+        if (savedTheme === "dark" || savedTheme === "light") {
+            document.documentElement.dataset.theme = savedTheme;
+        }
+    </script>
     <link rel="stylesheet" href="/styles.css">
     <script src="/app.js" defer></script>
 </head>
 <body>
+<div id="dog-rain" class="dog-rain" aria-hidden="true"></div>
 <main class="page">
+    <nav class="topbar" aria-label="Main navigation">
+        <span class="brand-mark" aria-hidden="true">✦</span>
+        <span class="brand-name">Internship Tracker</span>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to light mode">
+            <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.2 15.3A8.5 8.5 0 0 1 8.7 3.8 8.5 8.5 0 1 0 20.2 15.3Z"></path>
+            </svg>
+            <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>
+            </svg>
+            <span class="theme-toggle__label">Light mode</span>
+        </button>
+    </nav>
     <header class="hero">
         <p class="eyebrow">Fresh opportunities</p>
         <h1>Internship Tracker</h1>

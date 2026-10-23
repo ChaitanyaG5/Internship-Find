@@ -4,11 +4,52 @@ const hoursInput = document.querySelector("#hours");
 const resultCount = document.querySelector("#result-count");
 const status = document.querySelector("#status");
 const jobList = document.querySelector("#job-list");
+const themeToggle = document.querySelector("#theme-toggle");
+
+syncThemeToggle();
+themeToggle.addEventListener("click", () => {
+    const nextTheme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+    document.documentElement.dataset.theme = nextTheme;
+    localStorage.setItem("internship-tracker-theme", nextTheme);
+    syncThemeToggle();
+});
+
+initializeDogRain();
 
 form.addEventListener("submit", (event) => {
     event.preventDefault();
     loadJobs();
 });
+
+function initializeDogRain() {
+    const rainLayer = document.querySelector("#dog-rain");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reducedMotion.matches) {
+        return;
+    }
+
+    for (let index = 0; index < 10; index += 1) {
+        const size = 46 + Math.random() * 18;
+        const duration = 28 + Math.random() * 14;
+        const dog = document.createElement("img");
+        dog.className = "dog-rain__image";
+        dog.src = "/dog.png";
+        dog.alt = "";
+        dog.draggable = false;
+        dog.style.setProperty("--size", `${size}px`);
+        dog.style.setProperty("--left", `${Math.random() * Math.max(0, window.innerWidth - size)}px`);
+        dog.style.setProperty("--duration", `${duration}s`);
+        dog.style.setProperty("--delay", `${-Math.random() * duration}s`);
+        dog.style.setProperty("--drift", `${Math.random() * 56 - 28}px`);
+        rainLayer.append(dog);
+    }
+}
+
+function syncThemeToggle() {
+    const isDark = document.documentElement.dataset.theme !== "light";
+    themeToggle.setAttribute("aria-label", `Switch to ${isDark ? "light" : "dark"} mode`);
+    themeToggle.querySelector(".theme-toggle__label").textContent = `${isDark ? "Light" : "Dark"} mode`;
+}
 
 async function loadJobs() {
     const keywords = keywordInput.value.split(",").map((keyword) => keyword.trim()).filter(Boolean);

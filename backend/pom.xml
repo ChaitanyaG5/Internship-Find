@@ -71,6 +71,13 @@
                     <include>app.js</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${project.basedir}/..</directory>
+                <targetPath>static</targetPath>
+                <includes>
+                    <include>dog.png</include>
+                </includes>
+            </resource>
         </resources>
         <plugins>
             <plugin>
