@@ -9,6 +9,7 @@ public record InternshipDto(
         String company,
         String location,
         Instant postedAt,
+        Instant applicationDeadline,
         String url,
         String source) {
 
@@ -18,6 +19,7 @@ public record InternshipDto(
                 internship.getCompany(),
                 internship.getLocation(),
                 internship.getPostedAt(),
+                internship.getApplicationDeadline(),
                 internship.getUrl(),
                 internship.getSource());
     }

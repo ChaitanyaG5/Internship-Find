@@ -1,5 +1,6 @@
 const form = document.querySelector("#search-form");
 const keywordInput = document.querySelector("#keywords");
+const providerInput = document.querySelector("#provider");
 const hoursInput = document.querySelector("#hours");
 const resultCount = document.querySelector("#result-count");
 const status = document.querySelector("#status");
@@ -52,25 +53,44 @@ function syncThemeToggle() {
 }
 
 async function loadJobs() {
-    const keywords = keywordInput.value.split(",").map((keyword) => keyword.trim()).filter(Boolean);
-    const params = new URLSearchParams({ hours: hoursInput.value });
-    keywords.forEach((keyword) => params.append("keywords", keyword));
-
     jobList.replaceChildren();
     resultCount.textContent = "";
+    form.setAttribute("aria-busy", "true");
+    form.querySelector('button[type="submit"]').disabled = true;
     status.textContent = "Loading internships…";
+    status.classList.remove("status--error");
     try {
-        const response = await fetch(`/api/internships?${params.toString()}`);
-        if (!response.ok) {
-            throw new Error(`Request failed with status ${response.status}`);
+        const request = {
+            query: keywordInput.value.trim(),
+            provider: providerInput.value
+        };
+        if (hoursInput.value) {
+            request.postedWithinHours = Number(hoursInput.value);
         }
-        const jobs = await response.json();
+        const response = await fetch("/api/jobs/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(request)
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+            throw new Error(payload.message || `Search failed with status ${response.status}`);
+        }
+        const jobs = payload.jobs || [];
         resultCount.textContent = `${jobs.length} ${jobs.length === 1 ? "job" : "jobs"}`;
-        status.textContent = jobs.length ? "" : "No internships found for this search.";
+        status.textContent = jobs.length
+            ? (payload.warnings || []).join(" ")
+            : [...(payload.warnings || []), "No matching internships found from the configured job sources."]
+                .filter(Boolean)
+                .join(" ");
         jobs.forEach((job) => jobList.append(createJobCard(job)));
     } catch (error) {
-        status.textContent = "Could not load internships. Please try again.";
-        console.error("Unable to load internships", error);
+        status.textContent = error.message || "Could not search internships. Please try again.";
+        status.classList.add("status--error");
+        console.error("Unable to search internships", error);
+    } finally {
+        form.removeAttribute("aria-busy");
+        form.querySelector('button[type="submit"]').disabled = false;
     }
 }
 
@@ -98,11 +118,17 @@ function createJobCard(job) {
     const apply = document.createElement("a");
     apply.className = "apply-link";
     apply.textContent = "Apply";
-    apply.href = job.url;
+    apply.href = job.applicationUrl;
     apply.target = "_blank";
     apply.rel = "noopener noreferrer";
 
     card.append(details, apply);
+    if (job.description) {
+        const description = document.createElement("p");
+        description.className = "job-description";
+        description.textContent = job.description;
+        card.insertBefore(description, apply);
+    }
     return card;
 }
 

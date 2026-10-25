@@ -263,7 +263,7 @@ select:focus-visible {
 
 .search-panel {
     display: grid;
-    grid-template-columns: 1fr 190px auto;
+    grid-template-columns: minmax(240px, 1fr) 160px 185px auto;
     align-items: end;
     gap: 12px;
     padding: 20px;
@@ -283,12 +283,16 @@ select:focus-visible {
     font-weight: 650;
 }
 
-.search-panel label:first-of-type {
+.search-panel label[for="keywords"] {
     grid-column: 1;
 }
 
-.search-panel label[for="hours"] {
+.search-panel label[for="provider"] {
     grid-column: 2;
+}
+
+.search-panel label[for="hours"] {
+    grid-column: 3;
 }
 
 input,
@@ -325,12 +329,16 @@ input {
     grid-column: 1;
 }
 
-select {
+select[name="provider"] {
     grid-column: 2;
 }
 
-.search-panel button {
+select[name="hours"] {
     grid-column: 3;
+}
+
+.search-panel button {
+    grid-column: 4;
     padding: 0 18px;
     border: 0;
     color: var(--button-text);
@@ -368,6 +376,10 @@ select {
     letter-spacing: -0.02em;
 }
 
+.status--error {
+    color: #f5a8b5 !important;
+}
+
 #result-count,
 .status {
     color: var(--muted-text);
@@ -381,6 +393,7 @@ select {
 
 .job-card {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 24px;
@@ -402,6 +415,15 @@ select {
 .job-card h3 {
     margin: 0 0 8px;
     font-size: 1.1rem;
+}
+
+.job-description {
+    flex: 1 1 100%;
+    max-width: 100%;
+    margin: 0;
+    color: var(--muted-text);
+    font-size: 0.88rem;
+    line-height: 1.55;
 }
 
 .job-meta {
@@ -466,12 +488,17 @@ select {
     }
 
     .search-panel label,
-    .search-panel label:first-of-type,
+    .search-panel label[for="keywords"],
+    .search-panel label[for="provider"],
     .search-panel label[for="hours"],
     input,
     select,
     .search-panel button {
         grid-column: 1;
+    }
+
+    .search-panel label {
+        grid-row: auto;
     }
 
     .search-panel label:not(:first-of-type) {
@@ -482,6 +509,10 @@ select {
         align-items: flex-start;
         flex-direction: column;
         gap: 16px;
+    }
+
+    .job-description {
+        flex: auto;
     }
 }
 

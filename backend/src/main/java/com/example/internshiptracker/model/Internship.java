@@ -36,6 +36,8 @@ public class Internship {
     @Column(nullable = false)
     private Instant postedAt;
 
+    private Instant applicationDeadline;
+
     @Column(length = 10000)
     private String description;
 
@@ -44,4 +46,6 @@ public class Internship {
 
     @Column(nullable = false, length = 100)
     private String source;
+
+    private Instant lastCheckedAt;
 }

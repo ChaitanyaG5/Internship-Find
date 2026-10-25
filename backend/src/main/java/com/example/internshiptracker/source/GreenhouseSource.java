@@ -54,7 +54,7 @@ public class GreenhouseSource implements JobSource {
             return java.util.Optional.empty();
         }
         String url = job.path("absolute_url").asText("");
-        String postedAt = job.path("updated_at").asText("");
+        String postedAt = job.path("first_published").asText("");
         if (url.isBlank() || postedAt.isBlank()) {
             return java.util.Optional.empty();
         }

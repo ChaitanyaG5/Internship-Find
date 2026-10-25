@@ -56,8 +56,50 @@ class InternshipTrackerTests {
         Internship duplicateInBatch = listing("Intern A copy", "two", "https://example.com/shared", Instant.now());
         assertThat(internshipService.saveNew(List.of(fromFirstSource))).isEqualTo(1);
 
+        Internship stored = repository.findAllByUrlIn(List.of("https://example.com/shared")).get(0);
+        Instant originalPostedAt = stored.getPostedAt();
+        stored.setLastCheckedAt(Instant.EPOCH);
+        repository.save(stored);
         assertThat(internshipService.saveNew(List.of(duplicateInBatch))).isZero();
         assertThat(repository.count()).isEqualTo(1);
+        Internship checked = repository.findAllByUrlIn(List.of("https://example.com/shared")).get(0);
+        assertThat(checked.getLastCheckedAt()).isAfter(Instant.EPOCH);
+        assertThat(checked.getPostedAt()).isEqualTo(originalPostedAt);
+    }
+
+    @Test
+    void expirationCleanupDeletesOnlyListingsWithPastApplicationDeadlines() {
+        Instant now = Instant.now();
+        Internship expired = listing("Expired internship", "example", "https://example.com/expired",
+                now.minus(30, ChronoUnit.DAYS));
+        expired.setApplicationDeadline(now.minusSeconds(1));
+        Internship stillOpen = listing("Open internship", "example", "https://example.com/open",
+                now.minus(30, ChronoUnit.DAYS));
+        stillOpen.setApplicationDeadline(now.plus(1, ChronoUnit.DAYS));
+        Internship noDeadline = listing("Undated internship", "example", "https://example.com/undated",
+                now.minus(30, ChronoUnit.DAYS));
+        repository.saveAll(List.of(expired, stillOpen, noDeadline));
+
+        assertThat(internshipService.deleteExpiredApplications(now)).isEqualTo(1);
+        assertThat(repository.findAll()).extracting(Internship::getUrl)
+                .containsExactlyInAnyOrder(
+                        "https://example.com/open",
+                        "https://example.com/undated");
+    }
+
+    @Test
+    void searchExcludesListingsWithExpiredApplicationDeadlines() {
+        Instant now = Instant.now();
+        Internship expired = listing("Expired internship", "example", "https://example.com/expired",
+                now.minus(1, ChronoUnit.HOURS));
+        expired.setApplicationDeadline(now.minusSeconds(1));
+        Internship noDeadline = listing("Open internship", "example", "https://example.com/open",
+                now.minus(2, ChronoUnit.HOURS));
+        repository.saveAll(List.of(expired, noDeadline));
+
+        assertThat(internshipService.search(List.of(), 24, null))
+                .extracting(Internship::getUrl)
+                .containsExactly("https://example.com/open");
     }
 
     @Test

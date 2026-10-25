@@ -7,7 +7,7 @@ COPY pom.xml ./
 COPY backend ./backend
 COPY frontend ./frontend
 
-RUN mvn -B -DskipTests package
+RUN mvn -B package
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app

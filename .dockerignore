@@ -1,0 +1,13 @@
+.git
+.gitignore
+.env
+**/.env
+**/target
+target
+data
+**/data
+*.mv.db
+*.trace.db
+.idea
+*.iml
+*.log

@@ -36,10 +36,15 @@
         <p>Find recently posted internships from multiple job sources.</p>
     </header>
     <form id="search-form" class="search-panel">
-        <label for="keywords">Keywords</label>
-        <input id="keywords" name="keywords" type="search" placeholder="java, spring, design" autocomplete="off">
+        <label for="keywords">What internship are you looking for?</label>
+        <input id="keywords" name="keywords" type="search" placeholder="Remote Java internships in India, graduating in 2027" autocomplete="off" maxlength="500" required>
+        <label for="provider">AI search provider</label>
+        <select id="provider" name="provider">
+            <option value="OPENROUTER">OpenRouter</option>
+        </select>
         <label for="hours">Posted within</label>
         <select id="hours" name="hours">
+            <option value="">Use query (default 24 hours)</option>
             <option value="24">Last 24 hours</option>
             <option value="72">Last 3 days</option>
             <option value="168">Last 7 days</option>

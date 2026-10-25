@@ -1,6 +1,7 @@
 package com.example.internshiptracker.service;
 
 import java.time.Instant;
+import java.time.Clock;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class InternshipService {
 
     private final InternshipRepository repository;
+    private final Clock clock;
 
     @Transactional
     public int saveNew(List<Internship> fetched) {
@@ -41,20 +43,25 @@ public class InternshipService {
             return 0;
         }
 
-        Set<String> existingUrls = repository.findAllByUrlIn(uniqueFetched.keySet()).stream()
+        Instant checkedAt = clock.instant();
+        List<Internship> existing = repository.findAllByUrlIn(uniqueFetched.keySet());
+        existing.forEach(internship -> internship.setLastCheckedAt(checkedAt));
+        Set<String> existingUrls = existing.stream()
                 .map(Internship::getUrl)
                 .collect(Collectors.toSet());
         List<Internship> newListings = uniqueFetched.entrySet().stream()
                 .filter(entry -> !existingUrls.contains(entry.getKey()))
                 .map(Map.Entry::getValue)
                 .toList();
+        newListings.forEach(internship -> internship.setLastCheckedAt(checkedAt));
+        repository.saveAll(existing);
         repository.saveAll(newListings);
         return newListings.size();
     }
 
     @Transactional(readOnly = true)
     public List<Internship> search(List<String> keywords, int hours, String source) {
-        Instant cutoff = Instant.now().minus(hours, ChronoUnit.HOURS);
+        Instant cutoff = clock.instant().minus(hours, ChronoUnit.HOURS);
         List<String> cleanedKeywords = keywords == null ? List.of() : keywords.stream()
                 .filter(keyword -> keyword != null && !keyword.isBlank())
                 .map(keyword -> keyword.toLowerCase(Locale.ROOT))
@@ -63,6 +70,9 @@ public class InternshipService {
         Specification<Internship> specification = (root, query, criteriaBuilder) -> {
             List<Predicate> conditions = new ArrayList<>();
             conditions.add(criteriaBuilder.greaterThanOrEqualTo(root.get("postedAt"), cutoff));
+            conditions.add(criteriaBuilder.or(
+                    criteriaBuilder.isNull(root.get("applicationDeadline")),
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("applicationDeadline"), clock.instant())));
             if (source != null && !source.isBlank()) {
                 conditions.add(criteriaBuilder.equal(
                         criteriaBuilder.lower(root.get("source")), source.trim().toLowerCase(Locale.ROOT)));
@@ -86,8 +96,8 @@ public class InternshipService {
     }
 
     @Transactional
-    public int deleteOlderThan(Instant cutoff) {
-        return repository.deleteByPostedAtBefore(cutoff);
+    public int deleteExpiredApplications(Instant cutoff) {
+        return repository.deleteByApplicationDeadlineBefore(cutoff);
     }
 
     private static String escapeLike(String value) {

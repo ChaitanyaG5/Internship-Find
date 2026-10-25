@@ -13,5 +13,5 @@ public interface InternshipRepository extends JpaRepository<Internship, Long>, J
 
     List<Internship> findAllByUrlIn(Collection<String> urls);
 
-    int deleteByPostedAtBefore(Instant cutoff);
+    int deleteByApplicationDeadlineBefore(Instant cutoff);
 }
